@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { TagsModel } from "./models.ts";
 import {
   Table,
   TableBody,
@@ -9,48 +8,102 @@ import {
   TableHead,
   TableRow,
   Paper,
+  CircularProgress,
 } from "@mui/material";
 import Pagination from "./storybook/Pagination.tsx";
-import "./styles.css";
+
+import Sort from "./storybook/Sort.tsx";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchTagsRequest,
+  fetchTagsSuccess,
+  fetchTagsFailure,
+} from "./store/actions.ts";
+import { RootState } from "./store/store.ts";
 
 const Home = () => {
-  const [tags, setTags] = useState<TagsModel[]>([]);
+  const dispatch = useDispatch();
+  const { loading, error, tags } = useSelector(
+    (state: RootState) => state.tags
+  );
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(
-          "https://api.stackexchange.com/2.3/tags",
-          {
-            params: {
-              site: "stackoverflow",
-              key: "s3rcNPsWW5NslQvC)Evdew((",
-            },
-          }
-        );
-        setTags(response.data.items);
-      } catch (error) {
-        console.error("Wystąpił błąd:", error);
-      }
-    };
+  const [order, setOrder] = useState<"asc" | "desc">("asc");
+  const [orderBy, setOrderBy] = useState<string>("name");
 
-    fetchData();
-  }, []);
+  useEffect(() => {
+    dispatch(fetchTagsRequest());
+    axios
+      .get("https://api.stackexchange.com/2.3/tags", {
+        params: {
+          site: "stackoverflow",
+          key: "s3rcNPsWW5NslQvC)Evdew((",
+        },
+      })
+      .then((response) => {
+        dispatch(fetchTagsSuccess(response.data.items));
+      })
+      .catch((error) => {
+        dispatch(
+          fetchTagsFailure("An error occurred while downloading the data.")
+        );
+      });
+  }, [dispatch]);
 
   const startIndex = page * rowsPerPage;
   const endIndex = Math.min(startIndex + rowsPerPage, tags.length);
-  const visibleRows = tags.slice(startIndex, endIndex);
+
+  const sortedTags = tags.slice().sort((a, b) => {
+    const orderMultiplier = order === "asc" ? 1 : -1;
+    if (a[orderBy] < b[orderBy]) {
+      return -1 * orderMultiplier;
+    }
+    if (a[orderBy] > b[orderBy]) {
+      return 1 * orderMultiplier;
+    }
+    return 0;
+  });
+
+  const visibleRows = sortedTags.slice(startIndex, endIndex);
+
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
-    <div className="flex flex-row">
+    <div className="flex flex-col items-center mt-8 gap-4 w-4/5">
+      {loading && (
+        <div className="overlay">
+          <div className="spinner-container">
+            <CircularProgress />
+          </div>
+        </div>
+      )}
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Name</TableCell>
-              <TableCell align="right">Powiazanych postów</TableCell>
+              <TableCell>
+                <Sort
+                  label="Name"
+                  sortLabel="name"
+                  orderBy={orderBy}
+                  order={order}
+                  setOrder={setOrder}
+                  setOrderBy={setOrderBy}
+                />
+              </TableCell>
+              <TableCell align="right">
+                <Sort
+                  label="Related Posts"
+                  sortLabel="count"
+                  orderBy={orderBy}
+                  order={order}
+                  setOrder={setOrder}
+                  setOrderBy={setOrderBy}
+                />
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
