@@ -80,6 +80,14 @@ const Home = () => {
           </div>
         </div>
       )}
+      <Pagination
+        tags={tags}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        setPage={setPage}
+        endIndex={endIndex}
+        setRowsPerPage={setRowsPerPage}
+      />
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -116,14 +124,6 @@ const Home = () => {
           </TableBody>
         </Table>
       </TableContainer>
-      <Pagination
-        tags={tags}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        setPage={setPage}
-        endIndex={endIndex}
-        setRowsPerPage={setRowsPerPage}
-      />
     </div>
   );
 };

@@ -3,8 +3,9 @@ import { TagsModel } from "../models";
 import { IconButton, TextField } from "@mui/material";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
+import './Pagination.css'
 
-interface IProps {
+interface PaginationProps  {
   tags: TagsModel[];
   rowsPerPage: number;
   page: number;
@@ -13,7 +14,7 @@ interface IProps {
   setRowsPerPage: (value: number) => void;
 }
 
-const Pagination = (props: IProps) => {
+const Pagination = (props: PaginationProps ) => {
   const { tags, rowsPerPage, page, setPage, endIndex, setRowsPerPage } = props;
 
   const totalPages = Math.ceil(tags.length / rowsPerPage);
@@ -29,7 +30,7 @@ const Pagination = (props: IProps) => {
   };
 
   return (
-    <div className="flex gap-6 justify-end self-end">
+    <div className="storybook-pagination">
       <TextField
         id="outlined-basic"
         label="Rows per page"
@@ -41,7 +42,7 @@ const Pagination = (props: IProps) => {
         InputProps={{ inputProps: { min: 1 } }}
       />
 
-      <div className="flex flex-row gap-1 items-center">
+      <div className="storybook-pagination--navigation">
         <div>
           <IconButton
             aria-label="preview"

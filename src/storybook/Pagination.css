@@ -1,0 +1,13 @@
+.storybook-pagination {
+  display: flex;
+  gap: 24px;
+  justify-content: end;
+  align-self: end;
+}
+
+.storybook-pagination--navigation {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  align-items: center;
+}
